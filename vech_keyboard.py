@@ -47,6 +47,9 @@ try:
         # back
         if x == "s":
             vehicle.backward_step()
+        if x == "p":
+            break
+
 
 finally:
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, filedescriptors)

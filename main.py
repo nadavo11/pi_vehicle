@@ -1,16 +1,15 @@
-# This is a sample Python script.
+import periphery
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from periphery import GPIO
+from periphery import PWM
 
+# Open GPIO /dev/gpiochip0 line 10 with input direction
+gpio_in = GPIO("/dev/gpiochip0", 10, "in")
+# Open GPIO /dev/gpiochip0 line 12 with output direction
+gpio_out = GPIO("/dev/gpiochip0", 12, "out")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+value = gpio_in.read()
+gpio_out.write(not value)
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+gpio_in.close()
+gpio_out.close()

@@ -10,8 +10,11 @@ MINVEL, MAXVEL = -1, 1
 
 class Vehicle:
     def __init__(self, motor_left,motor_right) -> None:
+
+        #initiate 2 wheels
         self.left_wheel = Wheel(motor_left)
         self.right_wheel = Wheel(motor_right)
+
 
         self.vel = 0
         self.turn = 0

@@ -26,8 +26,7 @@ class Wheel:
             return 1
 
         # set motor spin direction
-        self.motot
-        self.in2.write(directions[d][1])
+        self.motor.set_direction([directions[d]])
 
         self.direction = d
 

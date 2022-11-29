@@ -53,3 +53,11 @@ class Vehicle:
         self.turn(0.01)
         time.sleep(0.01)
         self.stop()
+
+    def __iadd__(self, other):
+        self.left_wheel += 1
+        self.right_wheel += 1
+
+    def __isub__(self, other):
+        self.left_wheel -= 1
+        self.right_wheel -= 1

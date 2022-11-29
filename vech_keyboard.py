@@ -32,7 +32,11 @@ try:
         # forward
         if x == "w":
             vehicle.forward_step()
+        if x == "j":
+            vehicle += 1
 
+        if x == "k":
+            vehicle -= 1
         # left
         if x == "a":
             vehicle.turn_left()

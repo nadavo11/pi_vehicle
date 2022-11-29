@@ -29,13 +29,14 @@ class Wheel:
         self.motor.set_direction([directions[d]])
 
         self.direction = d
+        return 0
 
     def set_vel(self, v):
 
         # invalid value protection
         if MAXVEL > v or v < MINVEL:
             return 0
-
+        # moving forward or backward
         if v > 0:
             self.set_direction("forward")
         if v < 0:

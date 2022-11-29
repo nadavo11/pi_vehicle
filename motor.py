@@ -30,7 +30,7 @@ class Motor:
 
     def set_direction(self, direction):
         # write to GPIO
-        self.in2.write(direction[0])
+        self.in1.write(direction[0])
         self.in2.write(direction[1])
 
     def set_vel(self, velocity):

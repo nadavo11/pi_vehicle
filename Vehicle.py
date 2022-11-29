@@ -35,3 +35,13 @@ class Vehicle:
         self.left_wheel += turn
         self.right_wheel -= turn
 
+    def step(self, v,t):
+        self.set_vel(v)
+        time.sleep(t)
+        self.stop()
+    def forward_step(self):
+        self.step(0.05,0.1)
+
+    def backward_step(self):
+        self.step(-0.05,0.1)
+

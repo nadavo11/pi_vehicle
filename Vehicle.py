@@ -17,7 +17,7 @@ class Vehicle:
 
 
         self.vel = 0
-        self.turn = 0
+        self.angle = 0
         self.acc = 0
 
     def set_vel(self, v):
@@ -44,4 +44,12 @@ class Vehicle:
 
     def backward_step(self):
         self.step(-0.05,0.1)
+    def turn_left(self):
+        self.turn(-0.01)
+        time.sleep(0.01)
+        self.stop()
 
+    def turn_right(self):
+        self.turn(0.01)
+        time.sleep(0.01)
+        self.stop()

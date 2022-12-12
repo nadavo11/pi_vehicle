@@ -28,6 +28,7 @@ class Vehicle:
         self.left_wheel.set_vel(v)
         self.right_wheel.set_vel(v)
         
+        self.vel = v
         print(f'v:{v}')
         return 1
 
@@ -36,26 +37,27 @@ class Vehicle:
         
 
     def turn(self, turn):
-        self.left_wheel += turn
-        self.right_wheel -= turn
+        self.left_wheel.set_vel(self.vel + turn)
+        self.right_wheel.set_vel(self.vel - turn)
 
     def step(self, v,t):
         self.set_vel(v)
         time.sleep(t)
         self.stop()
     def forward_step(self):
-        self.step(0.5,1)
+        self.step(0.3,0.3)
 
     def backward_step(self):
-        self.step(-0.5,1)
+        self.step(-0.3,0.3)
+
     def turn_left(self):
-        self.turn(-0.01)
-        time.sleep(0.01)
+        self.turn(-0.3)
+        time.sleep(0.3)
         self.stop()
 
     def turn_right(self):
-        self.turn(0.01)
-        time.sleep(0.01)
+        self.turn(0.3)
+        time.sleep(0.3)
         self.stop()
 
     def __iadd__(self, other):

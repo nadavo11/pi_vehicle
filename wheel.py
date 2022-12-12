@@ -26,15 +26,16 @@ class Wheel:
             return 1
 
         # set motor spin direction
-        self.motor.set_direction([directions[d]])
+        self.motor.set_direction(directions[d])
 
         self.direction = d
         return 0
 
     def set_vel(self, v):
+        print('w.setvel called')
 
         # invalid value protection
-        if MAXVEL > v or v < MINVEL:
+        if MAXVEL <= v or v <= MINVEL:
             return 0
         # moving forward or backward
         if v > 0:
@@ -45,15 +46,16 @@ class Wheel:
             self.set_direction("disable")
 
         self.vel = v
+        self.motor.set_vel(abs(v))
         return 1
 
     # override < += > operator
     def __iadd__(self, other):
-        return self.set_vel(self.vel + other)
+        self.set_vel(self.vel + other)
 
     # override < -= > operator
     def __isub__(self, other):
-        return self.set_vel(self.vel - other)
+        self.set_vel(self.vel - other)
 
     def stop(self):
         self.set_vel(0)

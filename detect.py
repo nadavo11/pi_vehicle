@@ -45,6 +45,7 @@ from pycoral.utils.edgetpu import run_inference
 ### import our vehicle
 
 # from py_vehicle.v_init import vehicle
+people=[]
 
 def generate_svg(src_size, inference_box, objs, labels, text_lines):
     svg = SVG(src_size)
@@ -72,7 +73,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 def main():
-    default_model_dir = '../all_models'
+    default_model_dir = '../pi_vehicle'
     default_model = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
     default_labels = 'coco_labels.txt'
     parser = argparse.ArgumentParser()
@@ -130,6 +131,7 @@ def main():
           'FPS: {} fps'.format(round(next(fps_counter))),
       ]
       print(' '.join(text_lines))
+      print(f"people list={people}")
       return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     result = gstreamer.run_pipeline(user_callback,
@@ -138,5 +140,7 @@ def main():
                                     videosrc=args.videosrc,
                                     videofmt=args.videofmt)
 
+
+    
 if __name__ == '__main__':
     main()

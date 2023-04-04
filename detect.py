@@ -31,9 +31,13 @@ python3 detect.py \
   --labels ${TEST_DATA}/coco_labels.txt
 """
 import argparse
+
+from periphery import GPIO
+
 import gstreamer
 import os
 import time
+
 
 from common import avg_fps_counter, SVG
 from pycoral.adapters.common import input_size
@@ -41,6 +45,10 @@ from pycoral.adapters.detect import get_objects
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 from pycoral.utils.edgetpu import run_inference
+
+from Vehicle import Vehicle
+from motor import Motor
+
 
 ### import our vehicle
 
@@ -72,16 +80,24 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
         svg.add_rect(x, y, w, h, 'red', 2)
     return svg.finish()
 
-def main():
+
+def main(termios=None):
+
+    # default model path info.
     default_model_dir = '../pi_vehicle'
     default_model = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
     default_labels = 'coco_labels.txt'
+    
+    """****************************************
+                parse input args:
+    ****************************************"""
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='.tflite model path',
-                        default=os.path.join(default_model_dir,default_model))
+                        default=os.path.join(default_model_dir, default_model))
     parser.add_argument('--labels', help='label file path',
                         default=os.path.join(default_model_dir, default_labels))
-    parser.add_argument('--top_k', type=int, default=3,
+    parser.add_argument('--top_k', type=int, default=8,
                         help='number of categories with highest score to display')
     parser.add_argument('--threshold', type=float, default=0.1,
                         help='classifier score threshold')
@@ -90,49 +106,107 @@ def main():
     parser.add_argument('--videofmt', help='Input video format.',
                         default='raw',
                         choices=['raw', 'h264', 'jpeg'])
+    parser.add_argument('--class', type = int, help='Input the object you would like to detect: for options check labels.txt',
+                        default='0')
+    args = parser.parse_args()
     args = parser.parse_args()
 
+    # init TFlite things
     print('Loading {} with {} labels.'.format(args.model, args.labels))
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
     labels = read_label_file(args.labels)
     inference_size = input_size(interpreter)
-    
-    ### print the label list
-    print(labels)
+
     # Average fps over last 30 frames.
     fps_counter = avg_fps_counter(30)
 
+
+    """
+    *********************************************************
+    
+                Vehicle initialization
+                
+    *********************************************************
+    """
+
+    in1 = ["/dev/gpiochip2", 9]  # pin 16
+    in2 = ["/dev/gpiochip4", 10]  # pin 18
+    pwmA = [0, 0]  # pin 32
+
+    in3 = ["/dev/gpiochip4", 13]
+    in4 = ["/dev/gpiochip2", 13]
+    pwmB = [1, 0]  # pin 33
+
+    in1 = GPIO(in1[0], in1[1], "out")
+    in2 = GPIO(in2[0], in2[1], "out")
+
+    in3 = GPIO(in3[0], in3[1], "out")
+    in4 = GPIO(in4[0], in4[1], "out")
+
+    print(f'vech in1:{in1}')
+    right_motor = Motor(in1, in2, pwmA)
+    print('\nright motor done!\n')
+    left_motor = Motor(in3, in4, pwmB)
+
+    vehicle = Vehicle(left_motor, right_motor)
+
+    print(vehicle)
+    """filedescriptors = termios.tcgetattr(sys.stdin)
+    tty.setcbreak(sys.stdin)
+    x = 0"""
+
     def user_callback(input_tensor, src_size, inference_box):
-      nonlocal fps_counter
-      start_time = time.monotonic()
-      run_inference(interpreter, input_tensor)
-      # For larger input image sizes, use the edgetpu.classification.engine for better performance
-      objs = get_objects(interpreter, args.threshold)[:args.top_k]
-      
-      ### print detection details
-      for obj in objs:
-        print(f'id = {obj.id}')
-      
-      ### detect people
-      people = [obj for obj in objs if obj.id == 0]  
-      if people:
-        p = people[0]
+        nonlocal fps_counter
+        start_time = time.monotonic()
+        run_inference(interpreter, input_tensor)
 
-        ### get location of the first person
+        """************************
+        **************************"""
+        # For larger input image sizes, use the edgetpu.classification.engine for better performance
+        objs = get_objects(interpreter, args.threshold)[:args.top_k]
 
-        p_loc = (p.bbox.xmin + p.bbox.xmax-300)/2
-        print(f'id = {obj.id}')
-        print(f'person at : {p_loc}')
+        ### detect people
+        people = [obj for obj in objs if obj.id == 43]
+        p_loc = 0
+        p_size = 0
+        if people:
+            p = people[0]
 
-      end_time = time.monotonic()
-      text_lines = [
-          'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),
-          'FPS: {} fps'.format(round(next(fps_counter))),
-      ]
-      print(' '.join(text_lines))
-      print(f"people list={people}")
-      return generate_svg(src_size, inference_box, objs, labels, text_lines)
+            ### get location of the first person
+            p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
+            p_size = p.bbox.ymax-p.bbox.ymin
+            print(f'person at : {p_loc}')
+
+
+        end_time = time.monotonic()
+        text_lines = [
+            'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),
+            'FPS: {} fps'.format(round(next(fps_counter))),
+        ]
+        print(' '.join(text_lines))
+        
+        if people:
+            if p_loc>60:
+                vehicle.turn(0.9)
+        
+            elif p_loc < -60:
+                vehicle.turn(-0.9)
+            
+#            if -50 < p_loc <50:
+ #               vehicle.stop()
+            else:
+                if p_size < 100:
+                    vehicle.set_vel(-0.9)
+        
+                elif p_size > 150:
+                    vehicle.set_vel(0.9)
+                else:
+                    vehicle.stop()
+        
+        else:
+            vehicle.stop()
+        return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     result = gstreamer.run_pipeline(user_callback,
                                     src_size=(640, 480),
@@ -144,3 +218,4 @@ def main():
     
 if __name__ == '__main__':
     main()
+ 

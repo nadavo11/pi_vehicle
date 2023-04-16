@@ -44,3 +44,7 @@ class Motor:
     def set_vel(self, velocity):
         print(f'motor.set_vel called, v: {velocity}\n')
         self.pwm.duty_cycle = velocity
+    def shutdown(self):
+        self.in1.close()
+        self.in2.close()
+        self.pwm.close()

@@ -81,7 +81,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def main(termios=None):
+def detect(termios=None):
 
     # default model path info.
     default_model_dir = '../pi_vehicle'
@@ -122,39 +122,7 @@ def main(termios=None):
     fps_counter = avg_fps_counter(30)
 
 
-    """
-    *********************************************************
-    
-                Vehicle initialization
-                
-    *********************************************************
-    """
 
-    in1 = ["/dev/gpiochip2", 9]  # pin 16
-    in2 = ["/dev/gpiochip4", 10]  # pin 18
-    pwmA = [0, 0]  # pin 32
-
-    in3 = ["/dev/gpiochip4", 13]
-    in4 = ["/dev/gpiochip2", 13]
-    pwmB = [1, 0]  # pin 33
-
-    in1 = GPIO(in1[0], in1[1], "out")
-    in2 = GPIO(in2[0], in2[1], "out")
-
-    in3 = GPIO(in3[0], in3[1], "out")
-    in4 = GPIO(in4[0], in4[1], "out")
-
-    print(f'vech in1:{in1}')
-    right_motor = Motor(in1, in2, pwmA)
-    print('\nright motor done!\n')
-    left_motor = Motor(in3, in4, pwmB)
-
-    vehicle = Vehicle(left_motor, right_motor)
-
-    print(vehicle)
-    """filedescriptors = termios.tcgetattr(sys.stdin)
-    tty.setcbreak(sys.stdin)
-    x = 0"""
 
     def user_callback(input_tensor, src_size, inference_box):
         nonlocal fps_counter
@@ -192,9 +160,7 @@ def main(termios=None):
         
             elif p_loc < -60:
                 vehicle.turn(-0.9)
-            
-#            if -50 < p_loc <50:
- #               vehicle.stop()
+
             else:
                 if p_size < 100:
                     vehicle.set_vel(-0.9)
@@ -216,6 +182,4 @@ def main(termios=None):
 
 
     
-if __name__ == '__main__':
-    main()
- 
+

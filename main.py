@@ -99,7 +99,7 @@ def main():
     """----------------------------------
     detection and driving the vehicle
     ------------------------------------"""
-    detect(follow_obj,vehicle)
+    detect(vehicle,follow_obj)
 
 
 

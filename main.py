@@ -48,6 +48,6 @@ def vehicle_init():
 
 def main():
     vehicle = vehicle_init()
-    detect()
+    detect(vehicle)
 
 

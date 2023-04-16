@@ -81,7 +81,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def detect(termios=None):
+def detect(vehicle, termios=None):
 
     # default model path info.
     default_model_dir = '../pi_vehicle'

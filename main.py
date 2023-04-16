@@ -44,7 +44,7 @@ def vehicle_init():
     print(vehicle)
     return vehicle
 
-def follow_obj(obj,vehicle):
+def follow_obj(objs,vehicle):
     ### detect people
     people = [obj for obj in objs if obj.id == 43]
     p_loc = 0
@@ -81,7 +81,6 @@ def main():
     vehicle = vehicle_init()
     detect(follow_obj,vehicle)
 
-    objs =[]
 
 
 if __name__ == "__main__":

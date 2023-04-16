@@ -60,3 +60,5 @@ class Wheel:
     def stop(self):
         self.set_vel(0)
 
+    def shutdown(self):
+        self.motor.shutdown()

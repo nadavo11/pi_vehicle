@@ -3,6 +3,9 @@ import periphery
 from periphery import GPIO
 from periphery import PWM
 
+import signal
+import time
+import os
 
 from motor import Motor
 from wheel import Wheel
@@ -10,6 +13,8 @@ from Vehicle import Vehicle
 from detect import detect
 
 # TODO: SHUTDOWN function
+
+
 
 def vehicle_init():
     """
@@ -81,6 +86,19 @@ def follow_obj(objs,vehicle):
 
 def main():
     vehicle = vehicle_init()
+    """----------------------------------
+    define a safe-shutdown signal handler
+    ------------------------------------"""
+    def sig_handler(SIG, FRAME):
+        vehicle.shutdown()
+        os.kill(os.getpid(), signal.SIGINT)
+
+    signal.signal(signal.SIGINT, sig_handler)
+
+
+    """----------------------------------
+    detection and driving the vehicle
+    ------------------------------------"""
     detect(follow_obj,vehicle)
 
 

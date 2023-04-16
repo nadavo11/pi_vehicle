@@ -59,6 +59,9 @@ class Vehicle:
         self.turn(0.3)
         time.sleep(0.3)
         self.stop()
+    def shutdown(self):
+        self.left_wheel.shutdown()
+        self.right_wheel.shutdown()
 
     def __iadd__(self, other):
         self.left_wheel += 1

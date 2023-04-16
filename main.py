@@ -60,11 +60,11 @@ def follow_obj(objs,vehicle):
 
         p = people[0]
 
-    p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
-    p_size = p.bbox.ymax - p.bbox.ymin
-    print(f'person at : {p_loc}')
+        p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
+        p_size = p.bbox.ymax - p.bbox.ymin
+        print(f'person at : {p_loc}')
 
-    if people:
+
         if p_loc > 60:
             vehicle.turn(0.9)
 
@@ -99,7 +99,7 @@ def main():
     """----------------------------------
     detection and driving the vehicle
     ------------------------------------"""
-    detect(vehicle,follow_obj)
+    detect(vehicle, follow_obj)
 
 
 

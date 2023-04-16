@@ -12,8 +12,8 @@ from wheel import Wheel
 from Vehicle import Vehicle
 from detect import detect
 
-# TODO: SHUTDOWN function
 
+# TODO: SHUTDOWN function
 
 
 def vehicle_init():
@@ -49,7 +49,8 @@ def vehicle_init():
     print(vehicle)
     return vehicle
 
-def follow_obj(objs,vehicle):
+
+def follow_obj(objs, vehicle):
     ### detect people
     people = [obj for obj in objs if obj.id == 43]
     p_location = 0
@@ -63,7 +64,6 @@ def follow_obj(objs,vehicle):
         p_location = (p.bbox.xmin + p.bbox.xmax - 300) / 2
         p_size = p.bbox.ymax - p.bbox.ymin
         print(f'person at : {p_location}')
-
 
         if p_location > 60:
             vehicle.turn(0.9)
@@ -84,24 +84,23 @@ def follow_obj(objs,vehicle):
         vehicle.stop()
 
 
-def main():
-    vehicle = vehicle_init()
-    """----------------------------------
-    define a safe-shutdown signal handler
-    ------------------------------------"""
-    def sig_handler(SIG, FRAME):
-        vehicle.shutdown()
-        os.kill(os.getpid(), signal.SIGINT)
-
-    signal.signal(signal.SIGINT, sig_handler)
+"""----------------------------------
+            Main
+------------------------------------"""
+vehicle = vehicle_init()
+"""----------------------------------
+define a safe-shutdown signal handler
+------------------------------------"""
 
 
-    """----------------------------------
-    detection and driving the vehicle
-    ------------------------------------"""
-    detect(vehicle, follow_obj)
+def sig_handler(SIG, FRAME):
+    vehicle.shutdown()
+    os.kill(os.getpid(), signal.SIGINT)
 
 
+signal.signal(signal.SIGINT, sig_handler)
 
-if __name__ == "__main__":
-   main()
+"""----------------------------------
+detection and driving the vehicle
+------------------------------------"""
+detect(vehicle, follow_obj)

@@ -44,10 +44,45 @@ def vehicle_init():
     print(vehicle)
     return vehicle
 
+def follow_obj(obj,vehicle):
+    ### detect people
+    people = [obj for obj in objs if obj.id == 43]
+    p_loc = 0
+    p_size = 0
+    if people:
+        p = people[0]
+
+        ### get location of the first person
+        p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
+        p_size = p.bbox.ymax - p.bbox.ymin
+        print(f'person at : {p_loc}')
+
+        if people:
+            if p_loc > 60:
+                vehicle.turn(0.9)
+
+            elif p_loc < -60:
+                vehicle.turn(-0.9)
+
+            else:
+                if p_size < 100:
+                    vehicle.set_vel(-0.9)
+
+                elif p_size > 150:
+                    vehicle.set_vel(0.9)
+                else:
+                    vehicle.stop()
+
+        else:
+            vehicle.stop()
 
 
 def main():
     vehicle = vehicle_init()
     detect(vehicle)
 
+    objs =[]
 
+
+if __name__ == "__main__":
+   main()

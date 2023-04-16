@@ -81,7 +81,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def detect(vehicle, termios=None):
+def detect(vehicle,user_fun = None, objs = None, termios=None):
 
     # default model path info.
     default_model_dir = '../pi_vehicle'
@@ -134,44 +134,14 @@ def detect(vehicle, termios=None):
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
         objs = get_objects(interpreter, args.threshold)[:args.top_k]
 
-        ### detect people
-        people = [obj for obj in objs if obj.id == 43]
-        p_loc = 0
-        p_size = 0
-        if people:
-            p = people[0]
-
-            ### get location of the first person
-            p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
-            p_size = p.bbox.ymax-p.bbox.ymin
-            print(f'person at : {p_loc}')
-
-
+        if user_fun:
+            user_fun(objs,vehicle)
         end_time = time.monotonic()
         text_lines = [
             'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),
             'FPS: {} fps'.format(round(next(fps_counter))),
         ]
-        print(' '.join(text_lines))
-        
-        if people:
-            if p_loc>60:
-                vehicle.turn(0.9)
-        
-            elif p_loc < -60:
-                vehicle.turn(-0.9)
 
-            else:
-                if p_size < 100:
-                    vehicle.set_vel(-0.9)
-        
-                elif p_size > 150:
-                    vehicle.set_vel(0.9)
-                else:
-                    vehicle.stop()
-        
-        else:
-            vehicle.stop()
         return generate_svg(src_size, inference_box, objs, labels, text_lines)
 
     result = gstreamer.run_pipeline(user_callback,

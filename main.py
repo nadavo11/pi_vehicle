@@ -79,7 +79,7 @@ def follow_obj(obj,vehicle):
 
 def main():
     vehicle = vehicle_init()
-    detect(vehicle)
+    detect(follow_obj,vehicle)
 
     objs =[]
 

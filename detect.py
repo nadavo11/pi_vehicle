@@ -136,6 +136,7 @@ def detect(vehicle,user_fun = None, objs = None, termios=None):
 
         if user_fun:
             user_fun(objs,vehicle)
+
         end_time = time.monotonic()
         text_lines = [
             'Inference: {:.2f} ms'.format((end_time - start_time) * 1000),

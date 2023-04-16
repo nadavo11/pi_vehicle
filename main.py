@@ -52,7 +52,7 @@ def vehicle_init():
 def follow_obj(objs,vehicle):
     ### detect people
     people = [obj for obj in objs if obj.id == 43]
-    p_loc = 0
+    p_location = 0
     p_size = 0
 
     ### get location of the first person
@@ -60,15 +60,15 @@ def follow_obj(objs,vehicle):
 
         p = people[0]
 
-        p_loc = (p.bbox.xmin + p.bbox.xmax - 300) / 2
+        p_location = (p.bbox.xmin + p.bbox.xmax - 300) / 2
         p_size = p.bbox.ymax - p.bbox.ymin
-        print(f'person at : {p_loc}')
+        print(f'person at : {p_location}')
 
 
-        if p_loc > 60:
+        if p_location > 60:
             vehicle.turn(0.9)
 
-        elif p_loc < -60:
+        elif p_location < -60:
             vehicle.turn(-0.9)
 
         else:

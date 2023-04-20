@@ -81,7 +81,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def detect(vehicle, user_fun = None, objs = None, termios=None):
+def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False):
 
     # default model path info.
     default_model_dir = '../pi_vehicle'
@@ -149,7 +149,8 @@ def detect(vehicle, user_fun = None, objs = None, termios=None):
                                     src_size=(640, 480),
                                     appsink_size=inference_size,
                                     videosrc=args.videosrc,
-                                    videofmt=args.videofmt)
+                                    videofmt=args.videofmt,
+                                    headless=headless)
 
 
     

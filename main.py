@@ -4,6 +4,7 @@ from periphery import GPIO
 from periphery import PWM
 
 import signal
+import sys
 import time
 import os
 
@@ -12,9 +13,8 @@ from wheel import Wheel
 from Vehicle import Vehicle
 from detect import detect
 
-
+import argparse
 # TODO: SHUTDOWN function
-
 
 def vehicle_init():
     """
@@ -51,12 +51,13 @@ def vehicle_init():
 
 
 def follow_obj(objs, vehicle):
-    ### detect people
+
+    # detect people
     people = [obj for obj in objs if obj.id == 43]
     p_location = 0
     p_size = 0
 
-    ### get location of the first person
+    # get location of the first person
     if people:
 
         p = people[0]
@@ -79,28 +80,41 @@ def follow_obj(objs, vehicle):
                 vehicle.set_vel(0.9)
             else:
                 vehicle.stop()
-
     else:
         vehicle.stop()
 
 
-"""----------------------------------
-            Main
-------------------------------------"""
-vehicle = vehicle_init()
-"""----------------------------------
-define a safe-shutdown signal handler
-------------------------------------"""
+def main():
 
+    parser = argparse.ArgumentParser(description='Process some data.')
+    parser.add_argument('--headless', action='store_true',
+                        help='Run the program in headless mode (do not display output on monitor)')
 
-def sig_handler(SIG, FRAME):
-    vehicle.shutdown()
-    os.kill(os.getpid(), signal.SIGINT)
+    args = parser.parse_args()
 
+    if args.headless:
+        print("Running in headless mode...")
+    else:
+        print("Output will be displayed on the monitor.")
 
-signal.signal(signal.SIGINT, sig_handler)
+    """----------------------------------
+                Main
+    ------------------------------------"""
+    vehicle = vehicle_init()
+    """----------------------------------
+    define a safe-shutdown signal handler
+    ------------------------------------"""
 
-"""----------------------------------
-detection and driving the vehicle
-------------------------------------"""
-detect(vehicle, follow_obj)
+    def sig_handler(SIG, FRAME):
+        vehicle.shutdown()
+        sys.exit(0)
+        print("killed softly")
+    signal.signal(signal.SIGINT, sig_handler)
+
+    """----------------------------------
+    detection and driving the vehicle
+    ------------------------------------"""
+    detect(vehicle, follow_obj, headless=args.headless)
+
+if __name__ == "__main__":
+    main()

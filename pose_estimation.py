@@ -37,7 +37,7 @@ from pycoral.utils.edgetpu import make_interpreter
 _NUM_KEYPOINTS = 17
 
 
-def main(input):
+def det_pose(input):
   parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
@@ -89,7 +89,7 @@ while (True):
     ret, input = vid.read()
 
     # Display the resulting frame
-    cv2.imshow('output',main(input))
+    cv2.imshow('output',det_pose(input))
 
     # the 'q' button is set as the
     # quitting button you may use any

@@ -38,49 +38,49 @@ import numpy as np
 _NUM_KEYPOINTS = 17
 
 
-def det_pose(inp):
-  parser = argparse.ArgumentParser(
+def det_pose(input):
+    parser = argparse.ArgumentParser(
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument(
+    parser.add_argument(
       '-m', '--model', required=True, help='File path of .tflite file.')
-  args = parser.parse_args()
+    args = parser.parse_args()
 
 
 
-  interpreter = make_interpreter(args.model)
-  interpreter.allocate_tensors()
-  img = Image.fromarray(inp)
-  resized_img = img.resize(common.input_size(interpreter), Image.ANTIALIAS)
-  common.set_input(interpreter, resized_img)
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
+    img = Image.fromarray(inp)
+    resized_img = img.resize(common.input_size(interpreter), Image.ANTIALIAS)
+    common.set_input(interpreter, resized_img)
 
-  interpreter.invoke()
+    interpreter.invoke()
 
-  pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
+    pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
 
 
-  print(pose)
-  draw = ImageDraw.Draw(img)
-  width, height = img.size
-  for i in range(0, _NUM_KEYPOINTS):
-    draw.ellipse(
-        xy=[
-            pose[i][1] * width - 2, pose[i][0] * height - 2,
-            pose[i][1] * width + 2, pose[i][0] * height + 2
-        ],
-        fill=(255, 0, 0))
-
-    for i in range(9,11):
+    print(pose)
+    draw = ImageDraw.Draw(img)
+    width, height = img.size
+    for i in range(0, _NUM_KEYPOINTS):
         draw.ellipse(
-        xy=[
-            pose[i][1] * width - 2, pose[i][0] * height - 2,
-            pose[i][1] * width + 2, pose[i][0] * height + 2
-        ],
-        fill=(0, 255, 0))
-  #img.save(args.output)
-  #img.save(args.output)
-  #print('Done. Results saved at', args.output)
-  img.save("outo.jpg")
-  return np.array(img)
+            xy=[
+                pose[i][1] * width - 2, pose[i][0] * height - 2,
+                pose[i][1] * width + 2, pose[i][0] * height + 2
+            ],
+            fill=(255, 0, 0))
+
+        for i in range(9,11):
+            draw.ellipse(
+            xy=[
+                pose[i][1] * width - 2, pose[i][0] * height - 2,
+                pose[i][1] * width + 2, pose[i][0] * height + 2
+            ],
+            fill=(0, 255, 0))
+    #img.save(args.output)
+    #img.save(args.output)
+    #print('Done. Results saved at', args.output)
+    img.save("outo.jpg")
+    return np.array(img)
 
 
 import cv2

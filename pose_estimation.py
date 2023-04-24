@@ -29,6 +29,7 @@ python3 examples/movenet_pose_estimation.py \
 
 import argparse
 
+import numpy as np
 from PIL import Image
 from PIL import ImageDraw
 from pycoral.adapters import common
@@ -69,7 +70,7 @@ def det_pose(input):
         ],
         fill=(255, 0, 0))
   img.save(args.output)
-  return img
+  return np.array(img)
 
 
 import cv2

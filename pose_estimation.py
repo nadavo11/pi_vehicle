@@ -44,28 +44,27 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def det_pose(input, img):
+def det_pose(img):
     interpreter = make_interpreter(args.model)
     interpreter.allocate_tensors()
-
-    resized_img = img.resize(common.input_size(interpreter), Image.ANTIALIAS)
+    print(common.input_size(interpreter))
+    resized_img = cv2.resize(img,(192,192), Image.ANTIALIAS)
     common.set_input(interpreter, resized_img)
 
     interpreter.invoke()
-
     pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
 
     print(pose)
-    draw = ImageDraw.Draw(img)
+    # draw = ImageDraw.Draw(img)
+    print(img)
     width, height = img.size
     for i in range(0, _NUM_KEYPOINTS):
-        draw.ellipse(
+        cv2.ellipse(img,
             xy=[
                 pose[i][1] * width - 2, pose[i][0] * height - 2,
                 pose[i][1] * width + 2, pose[i][0] * height + 2
             ],
             fill=(255, 0, 0))
-    img.save(args.output)
     return img
 
 
@@ -79,7 +78,7 @@ while (True):
     # Capture the video frame
     # by frame
     ret, img = vid.read()
-
+    img = Image
     # Display the resulting frame
     cv2.imshow('output', det_pose(img))
 

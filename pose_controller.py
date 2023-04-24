@@ -38,15 +38,15 @@ def det_pose(input):
     hands = pose[9:11]
     sholders = pose[5:7]
 
-    hand_raised[RIGHT] = hands[RIGHT, 0] > sholders[RIGHT, 0]
-    hand_raised[LEFT] = hands[LEFT, 0] > sholders[LEFT, 0]
+    hand_raised[RIGHT] = hands[RIGHT, 0] < sholders[RIGHT, 0]
+    hand_raised[LEFT] = hands[LEFT, 0] < sholders[LEFT, 0]
     for i, hand in enumerate(hands):
         draw.ellipse(
             xy=[
-                hand[1] * width - 2, hand[0] * height - 2,
-                hand[1] * width + 2, hand[0] * height + 2
+                hand[1] * width - 6, hand[0] * height - 6,
+                hand[1] * width + 6, hand[0] * height + 6
             ],
-            fill=(hand_raised[i]*255, 0, hand_raised[i]*255))
+            fill=(hand_raised[i]*255, 0,255- hand_raised[i]*255))
 
     for sholder in sholders:
         draw.ellipse(
@@ -58,7 +58,7 @@ def det_pose(input):
     #img.save(args.output)
     #img.save(args.output)
     #print('Done. Results saved at', args.output)
-    img.save("outo.jpg")
+   # img.save("outo.jpg")
     return np.array(img)
 
 

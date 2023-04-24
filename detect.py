@@ -31,13 +31,13 @@ python3 detect.py \
   --labels ${TEST_DATA}/coco_labels.txt
 """
 import argparse
+import sys
 
 from periphery import GPIO
 
 import gstreamer
 import os
 import time
-
 
 from common import avg_fps_counter, SVG
 from pycoral.adapters.common import input_size
@@ -49,11 +49,11 @@ from pycoral.utils.edgetpu import run_inference
 from Vehicle import Vehicle
 from motor import Motor
 
-
 ### import our vehicle
 
 # from py_vehicle.v_init import vehicle
-people=[]
+people = []
+
 
 def generate_svg(src_size, inference_box, objs, labels, text_lines):
     svg = SVG(src_size)
@@ -81,13 +81,12 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False):
-
+def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
     # default model path info.
     default_model_dir = '../pi_vehicle'
     default_model = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
     default_labels = 'coco_labels.txt'
-    
+
     """****************************************
                 parse input args:
     ****************************************"""
@@ -106,7 +105,8 @@ def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False
     parser.add_argument('--videofmt', help='Input video format.',
                         default='raw',
                         choices=['raw', 'h264', 'jpeg'])
-    parser.add_argument('--class', type = int, help='Input the object you would like to detect: for options check labels.txt',
+    parser.add_argument('--class', type=int,
+                        help='Input the object you would like to detect: for options check labels.txt',
                         default='0')
     args = parser.parse_args()
     args = parser.parse_args()
@@ -121,10 +121,8 @@ def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False
     # Average fps over last 30 frames.
     fps_counter = avg_fps_counter(30)
 
-
-
-
     def user_callback(input_tensor, src_size, inference_box):
+
         nonlocal fps_counter
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
@@ -134,8 +132,10 @@ def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
         objs = get_objects(interpreter, args.threshold)[:args.top_k]
 
+        c = sys.stdin.read(1)[0]
+
         if user_fun:
-            user_fun(objs,vehicle)
+            user_fun(objs, vehicle, c)
 
         end_time = time.monotonic()
         text_lines = [
@@ -151,7 +151,3 @@ def detect(vehicle, user_fun = None, objs = None, termios=None, headless = False
                                     videosrc=args.videosrc,
                                     videofmt=args.videofmt,
                                     headless=headless)
-
-
-    
-

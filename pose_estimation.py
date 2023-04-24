@@ -42,12 +42,6 @@ def det_pose(input):
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       '-m', '--model', required=True, help='File path of .tflite file.')
-  #parser.add_argument(
-  #    '-i', '--input', required=True, help='Image to be classified.')
-  #parser.add_argument(
-  #    '--output',
-  #    default='movenet_result.jpg',
-  #    help='File path of the output image.')
   args = parser.parse_args()
 
 
@@ -62,6 +56,8 @@ def det_pose(input):
   interpreter.invoke()
 
   pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
+
+
   print(pose)
   draw = ImageDraw.Draw(img)
   width, height = img.size
@@ -73,7 +69,6 @@ def det_pose(input):
         ],
         fill=(255, 0, 0))
   img.save(args.output)
-  print('Done. Results saved at', args.output)
   return img
 
 

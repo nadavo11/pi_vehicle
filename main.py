@@ -50,17 +50,17 @@ def vehicle_init():
     return vehicle
 
 
-def follow_obj(objs, vehicle):
+def follow_obj(objs, vehicle, c):
 
     # detect people
-    people = [obj for obj in objs if obj.id == 43]
+    followed_obj = [obj for obj in objs if obj.id == c]
     p_location = 0
     p_size = 0
 
     # get location of the first person
-    if people:
+    if followed_obj:
 
-        p = people[0]
+        p = followed_obj[0]
 
         p_location = (p.bbox.xmin + p.bbox.xmax - 300) / 2
         p_size = p.bbox.ymax - p.bbox.ymin
@@ -89,14 +89,15 @@ def main():
     parser = argparse.ArgumentParser(description='Process some data.')
     parser.add_argument('--headless', action='store_true',
                         help='Run the program in headless mode (do not display output on monitor)')
-
+    parser.add_argument('--c', action='store_true',
+                        help='Choose the object you want to follow')
     args = parser.parse_args()
-
+    c = args.c
     if args.headless:
         print("Running in headless mode...")
     else:
         print("Output will be displayed on the monitor.")
-
+    print("looking for",c)
     """----------------------------------
                 Main
     ------------------------------------"""

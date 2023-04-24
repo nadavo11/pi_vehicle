@@ -37,40 +37,36 @@ from pycoral.utils.edgetpu import make_interpreter
 
 _NUM_KEYPOINTS = 17
 
-
-def det_pose(input):
-  parser = argparse.ArgumentParser(
-      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument(
-      '-m', '--model', required=True, help='File path of .tflite file.')
-  args = parser.parse_args()
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument(
+    '-m', '--model', required=True, help='File path of .tflite file.')
+args = parser.parse_args()
 
 
+def det_pose(input, img):
+    interpreter = make_interpreter(args.model)
+    interpreter.allocate_tensors()
 
-  interpreter = make_interpreter(args.model)
-  interpreter.allocate_tensors()
+    resized_img = img.resize(common.input_size(interpreter), Image.ANTIALIAS)
+    common.set_input(interpreter, resized_img)
 
-  img = Image.open(input)
-  resized_img = img.resize(common.input_size(interpreter), Image.ANTIALIAS)
-  common.set_input(interpreter, resized_img)
+    interpreter.invoke()
 
-  interpreter.invoke()
+    pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
 
-  pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
-
-
-  print(pose)
-  draw = ImageDraw.Draw(img)
-  width, height = img.size
-  for i in range(0, _NUM_KEYPOINTS):
-    draw.ellipse(
-        xy=[
-            pose[i][1] * width - 2, pose[i][0] * height - 2,
-            pose[i][1] * width + 2, pose[i][0] * height + 2
-        ],
-        fill=(255, 0, 0))
-  img.save(args.output)
-  return np.array(img)
+    print(pose)
+    draw = ImageDraw.Draw(img)
+    width, height = img.size
+    for i in range(0, _NUM_KEYPOINTS):
+        draw.ellipse(
+            xy=[
+                pose[i][1] * width - 2, pose[i][0] * height - 2,
+                pose[i][1] * width + 2, pose[i][0] * height + 2
+            ],
+            fill=(255, 0, 0))
+    img.save(args.output)
+    return img
 
 
 import cv2
@@ -82,10 +78,10 @@ while (True):
 
     # Capture the video frame
     # by frame
-    ret, input = vid.read()
+    ret, img = vid.read()
 
     # Display the resulting frame
-    cv2.imshow('output',det_pose(input))
+    cv2.imshow('output', det_pose(img))
 
     # the 'q' button is set as the
     # quitting button you may use any

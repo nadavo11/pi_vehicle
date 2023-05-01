@@ -7,10 +7,21 @@ from PIL import ImageDraw
 from pycoral.adapters import common
 from pycoral.utils.edgetpu import make_interpreter
 import numpy as np
+import signal
+import sys
+import time
+import os
+from motor import Motor
+from wheel import Wheel
+from Vehicle import Vehicle
+from detect import detect
+import argparse
+
 _NUM_KEYPOINTS = 17
 LEFT = 1
 RIGHT = 0
 hand_raised = [0,0]
+
 
 def det_pose(input):
     parser = argparse.ArgumentParser(
@@ -59,10 +70,77 @@ def det_pose(input):
     #img.save(args.output)
     #print('Done. Results saved at', args.output)
     img.save("outo.jpg")
-    return np.array(img)
+    return np.array(img),hand_raised[RIGHT],hand_raised[LEFT]
+
+
+
+# TODO: SHUTDOWN function
+
+def vehicle_init():
+    """
+    *********************************************************
+
+                Vehicle initialization
+
+    *********************************************************
+    """
+
+    in1 = ["/dev/gpiochip2", 9]  # pin 16
+    in2 = ["/dev/gpiochip4", 10]  # pin 18
+    pwmA = [0, 0]  # pin 32
+
+    in3 = ["/dev/gpiochip4", 13]
+    in4 = ["/dev/gpiochip2", 13]
+    pwmB = [1, 0]  # pin 33
+
+    # Open GPIO /dev/gpiochip0 line 10 with input direction
+    in1 = GPIO(in1[0], in1[1], "out")
+    in2 = GPIO(in2[0], in2[1], "out")
+
+    in3 = GPIO(in3[0], in3[1], "out")
+    in4 = GPIO(in4[0], in4[1], "out")
+
+    print(f'vech in1:{in1}')
+    right_motor = Motor(in1, in2, pwmA)
+    print('\nright motor done!\n')
+    left_motor = Motor(in3, in4, pwmB)
+
+    vehicle = Vehicle(left_motor, right_motor)
+    print(vehicle)
+    return vehicle
+
+
+def drive(left_hand, right_hand):
+    # detect people
+
+    p_location = 0
+    p_size = 0
+
+    # get location of the first person
+    if left_hand or right_hand:
+
+        if left_hand and right_hand:
+            vehicle.set_vel(0.99)
+
+
+        elif left_hand:
+            vehicle.set_vel(0.6)
+            vehicle.turn(-0.2)
+
+        elif right_hand:
+            vehicle.set_vel(0.6)
+            vehicle.turn(0.2)
+
+
+    else:
+        vehicle.stop()
+
 
 
 import cv2
+
+vehicle_init()
+
 
 # define a video capture object
 vid = cv2.VideoCapture(1)
@@ -73,8 +151,11 @@ while (True):
     # by frame
     ret, inp = vid.read()
 
+    pose ,left,right = det_pose(inp)
     # Display the resulting frame
-    cv2.imshow('output',det_pose(inp))
+    cv2.imshow('output',pose)
+    drive(left,right)
+
 
     # the 'q' button is set as the
     # quitting button you may use any

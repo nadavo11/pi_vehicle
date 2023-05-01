@@ -81,7 +81,7 @@ def generate_svg(src_size, inference_box, objs, labels, text_lines):
     return svg.finish()
 
 
-def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
+def detect(vehicle,c, user_fun=None, objs=None, termios=None, headless=False):
     # default model path info.
     default_model_dir = '../pi_vehicle'
     default_model = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
@@ -90,7 +90,6 @@ def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
     """****************************************
                 parse input args:
     ****************************************"""
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='.tflite model path',
                         default=os.path.join(default_model_dir, default_model))
@@ -108,7 +107,9 @@ def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
     parser.add_argument('--class', type=int,
                         help='Input the object you would like to detect: for options check labels.txt',
                         default='0')
-    args = parser.parse_args()
+
+    parser.add_argument('--headless',action='store_true')
+
     args = parser.parse_args()
 
     # init TFlite things
@@ -122,7 +123,8 @@ def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
     fps_counter = avg_fps_counter(30)
 
     def user_callback(input_tensor, src_size, inference_box):
-
+        
+        #    print('argsss',c)
         nonlocal fps_counter
         start_time = time.monotonic()
         run_inference(interpreter, input_tensor)
@@ -132,10 +134,10 @@ def detect(vehicle, user_fun=None, objs=None, termios=None, headless=False):
         # For larger input image sizes, use the edgetpu.classification.engine for better performance
         objs = get_objects(interpreter, args.threshold)[:args.top_k]
 
-        c = sys.stdin.read(1)[0]
+#        c = sys.stdin.read(1)[0]
 
         if user_fun:
-            user_fun(objs, vehicle, c)
+            user_fun(objs, vehicle,c)
 
         end_time = time.monotonic()
         text_lines = [

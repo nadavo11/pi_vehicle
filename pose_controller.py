@@ -17,6 +17,7 @@ from Vehicle import Vehicle
 from detect import detect
 import argparse
 
+from periphery import GPIO,PWM
 _NUM_KEYPOINTS = 17
 LEFT = 1
 RIGHT = 0
@@ -43,14 +44,14 @@ def det_pose(input):
     pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
 
 
-    print(pose)
+#    print(pose)
     draw = ImageDraw.Draw(img)
     width, height = img.size
     hands = pose[9:11]
     sholders = pose[5:7]
 
-    hand_raised[RIGHT] = hands[RIGHT, 0] > sholders[RIGHT, 0]
-    hand_raised[LEFT] = hands[LEFT, 0] > sholders[LEFT, 0]
+    hand_raised[RIGHT] = hands[RIGHT, 0] < sholders[RIGHT, 0]
+    hand_raised[LEFT] = hands[LEFT, 0] < sholders[LEFT, 0]
     for i, hand in enumerate(hands):
         draw.ellipse(
             xy=[
@@ -69,8 +70,9 @@ def det_pose(input):
     #img.save(args.output)
     #img.save(args.output)
     #print('Done. Results saved at', args.output)
+    print(hand_raised)
     img.save("outo.jpg")
-    return np.array(img),hand_raised[RIGHT],hand_raised[LEFT]
+    return np.array(img),hand_raised[LEFT],hand_raised[RIGHT]
 
 
 
@@ -110,7 +112,7 @@ def vehicle_init():
     return vehicle
 
 
-def drive(left_hand, right_hand):
+def drive(vehicle,left_hand, right_hand):
     # detect people
 
     p_location = 0
@@ -120,7 +122,7 @@ def drive(left_hand, right_hand):
     if left_hand or right_hand:
 
         if left_hand and right_hand:
-            vehicle.set_vel(0.99)
+            vehicle.set_vel(-0.99)
 
 
         elif left_hand:
@@ -139,7 +141,7 @@ def drive(left_hand, right_hand):
 
 import cv2
 
-vehicle_init()
+vehicle = vehicle_init()
 
 
 # define a video capture object
@@ -154,7 +156,7 @@ while (True):
     pose ,left,right = det_pose(inp)
     # Display the resulting frame
     cv2.imshow('output',pose)
-    drive(left,right)
+    drive(vehicle,left,right)
 
 
     # the 'q' button is set as the

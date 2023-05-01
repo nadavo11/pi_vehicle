@@ -32,7 +32,7 @@ def det_pose(input):
     pose = common.output_tensor(interpreter, 0).copy().reshape(_NUM_KEYPOINTS, 3)
 
 
-    print(pose)
+   # print(pose)
     draw = ImageDraw.Draw(img)
     width, height = img.size
     hands = pose[9:11]
@@ -59,6 +59,7 @@ def det_pose(input):
     #img.save(args.output)
     #print('Done. Results saved at', args.output)
    # img.save("outo.jpg")
+    print(hand_raised)
     return np.array(img)
 
 

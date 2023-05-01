@@ -74,10 +74,10 @@ def follow_obj(objs, vehicle, c):
 
         else:
             if p_size < 100:
-                vehicle.set_vel(-0.9)
+                vehicle.set_vel(-0.99)
 
             elif p_size > 150:
-                vehicle.set_vel(0.9)
+                vehicle.set_vel(0.99)
             else:
                 vehicle.stop()
     else:
@@ -106,16 +106,15 @@ def main():
     define a safe-shutdown signal handler
     ------------------------------------"""
 
-    def sig_handler(SIG, FRAME):
-        vehicle.shutdown()
-        sys.exit(0)
-        print("killed softly")
-    signal.signal(signal.SIGINT, sig_handler)
+   # def sig_handler(SIG, FRAME):
+   #     vehicle.shutdown()
+  #      sys.exit(0)
+ #       print("killed softly")
+#    signal.signal(signal.SIGINT, sig_handler)
 
     """----------------------------------
     detection and driving the vehicle
     ------------------------------------"""
     detect(vehicle, follow_obj, headless=args.headless)
 
-if __name__ == "__main__":
-    main()
+main()

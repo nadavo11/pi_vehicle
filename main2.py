@@ -50,34 +50,33 @@ def vehicle_init():
     return vehicle
 
 
-def follow_obj(objs, vehicle):
-
+def follow_obj(objs, vehicle,c=43):
     # detect people
-    people = [obj for obj in objs if obj.id == 43]
+    fol_obj = [obj for obj in objs if obj.id == c]
     p_location = 0
     p_size = 0
 
     # get location of the first person
-    if people:
+    if fol_obj:
 
-        p = people[0]
+        p = fol_obj[0]
 
         p_location = (p.bbox.xmin + p.bbox.xmax - 300) / 2
         p_size = p.bbox.ymax - p.bbox.ymin
-        print(f'person at : {p_location}')
+        print(f'{object} at : {p_location}')
 
         if p_location > 60:
-            vehicle.turn(0.9)
+            vehicle.turn(0.8)
 
         elif p_location < -60:
-            vehicle.turn(-0.9)
+            vehicle.turn(-0.8)
 
         else:
             if p_size < 100:
-                vehicle.set_vel(-0.9)
+                vehicle.set_vel(-0.99)
 
             elif p_size > 150:
-                vehicle.set_vel(0.9)
+                vehicle.set_vel(0.99)
             else:
                 vehicle.stop()
     else:
@@ -90,8 +89,9 @@ def main():
     parser.add_argument('--headless', action='store_true',
                         help='Run the program in headless mode (do not display output on monitor)')
 
+    parser.add_argument('-c','--c',type=int,help='integerclass')
     args = parser.parse_args()
-
+ 
     if args.headless:
         print("Running in headless mode...")
     else:
@@ -104,7 +104,6 @@ def main():
     """----------------------------------
     define a safe-shutdown signal handler
     ------------------------------------"""
-
     def sig_handler(SIG, FRAME):
         vehicle.shutdown()
         sys.exit(0)
@@ -114,7 +113,7 @@ def main():
     """----------------------------------
     detection and driving the vehicle
     ------------------------------------"""
-    detect(vehicle, follow_obj, headless=args.headless)
+    detect(vehicle,c=args.c,user_fun= follow_obj, headless=args.headless)
 
 if __name__ == "__main__":
     main()

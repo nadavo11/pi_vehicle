@@ -16,13 +16,33 @@ from wheel import Wheel
 from Vehicle import Vehicle
 from detect import detect
 import argparse
-
 from periphery import GPIO,PWM
+
+"""
+0	nose
+1	leftEye
+2	rightEye
+3	leftEar
+4	rightEar
+5	leftShoulder
+6	rightShoulder
+7	leftElbow
+8	rightElbow
+9	leftWrist
+10	rightWrist
+11	leftHip
+12	rightHip
+13	leftKnee
+14	rightKnee
+15	leftAnkle
+16	rightAnkle
+"""
+
 _NUM_KEYPOINTS = 17
 LEFT = 1
 RIGHT = 0
 hand_raised = [0,0]
-
+leg_raised = [0,0]
 
 def det_pose(input):
     parser = argparse.ArgumentParser(
@@ -49,9 +69,14 @@ def det_pose(input):
     width, height = img.size
     hands = pose[9:11]
     sholders = pose[5:7]
+    ankles = pose[15:]
+    knees = pose[13:15]
 
     hand_raised[RIGHT] = hands[RIGHT, 0] < sholders[RIGHT, 0]
     hand_raised[LEFT] = hands[LEFT, 0] < sholders[LEFT, 0]
+
+    leg_raised[RIGHT] = ankles[RIGHT, 0] < knees[RIGHT, 0]
+    leg_raised[LEFT] = ankles[LEFT, 0] < knees[LEFT, 0]
     for i, hand in enumerate(hands):
         draw.ellipse(
             xy=[
@@ -67,9 +92,23 @@ def det_pose(input):
                 sholder[1] * width + 2, sholder[0] * height + 2
             ],
             fill=(0, 0, 255))
-    #img.save(args.output)
-    #img.save(args.output)
-    #print('Done. Results saved at', args.output)
+
+    for ankle in ankles:
+        draw.ellipse(
+            xy=[
+                ankle[1] * width - 2, ankle[0] * height - 2,
+                ankle[1] * width + 2, ankle[0] * height + 2
+            ],
+            fill=(0, 0, 255))
+
+    if leg_raised[RIGHT]:
+        draw.ellipse(
+            xy=[
+                knees[1] * width - 2, knees[0] * height - 2,
+                knees[1] * width + 2, knees[0] * height + 2
+            ],
+            fill=(hand_raised[i] * 255, 0, hand_raised[i] * 255))
+
     print(hand_raised)
     img.save("outo.jpg")
     return np.array(img),hand_raised[LEFT],hand_raised[RIGHT]
@@ -159,11 +198,13 @@ while (True):
     drive(vehicle,left,right)
 
 
+
     # the 'q' button is set as the
     # quitting button you may use any
     # desired button of your choice
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 
 # After the loop release the cap object
 vid.release()
